@@ -4,8 +4,20 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 )
+
+// membuat struct middlerware
+type LogMiddleware struct {
+	http.Handler
+}
+
+// membuat midleware, ini akan dieksekusi sebelum masuk ke request
+func (middleware *LogMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("ini midleware")
+	middleware.Handler.ServeHTTP(writer, request)
+}
 
 func main() {
 	router := httprouter.New()
@@ -47,6 +59,12 @@ func main() {
 	router.MethodNotAllowed = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprint(writer, "salah method woy")
 	})
+
+	middleware := LogMiddleware{router}
+
+	request := httptest.NewRequest("GET", "localhost:3000", nil)
+	recorder := httptest.NewRecorder()
+	middleware.ServeHTTP(recorder, request)
 
 	server := http.Server{
 		Handler: router,
