@@ -12,15 +12,23 @@ import (
 )
 
 type CategoryServiceImpl struct {
-	repository repository.CategoryRepository // repository interface for connest service to repository
+	Repository repository.CategoryRepository // repository interface for connest service to repository
 	DB         *sql.DB                       // for begin dan commit or rollback db and assign to argument repository
-	validate   *validator.Validate
+	Validate   *validator.Validate
+}
+
+func NewCategoryService(categoryRepository repository.CategoryRepository, db *sql.DB, validate *validator.Validate) CategoryService {
+	return &CategoryServiceImpl{
+		Repository: categoryRepository,
+		DB:         db,
+		Validate:   validate,
+	}
 }
 
 func (service *CategoryServiceImpl) Created(ctx context.Context, request request.CategoryCreatedRequest) response.CategoryResponse {
 	// do validation request before use with package validation
 	// before validation must add tag validate in struct data want to validation
-	err := service.validate.Struct(request)
+	err := service.Validate.Struct(request)
 	helper.PanicError(err)
 
 	// open db transaction
@@ -34,7 +42,7 @@ func (service *CategoryServiceImpl) Created(ctx context.Context, request request
 	}
 
 	// do action with db in repository
-	category = service.repository.Save(ctx, tx, category)
+	category = service.Repository.Save(ctx, tx, category)
 
 	// return with mapping data domain category to response category
 	return helper.ToCategoryResponse(category)
@@ -43,7 +51,7 @@ func (service *CategoryServiceImpl) Created(ctx context.Context, request request
 func (service *CategoryServiceImpl) Update(ctx context.Context, request request.CategoryUpdateRequest) response.CategoryResponse {
 	// do validation request before use with package validation
 	// before validation must add tag validate in struct data want to validation
-	err := service.validate.Struct(request)
+	err := service.Validate.Struct(request)
 	helper.PanicError(err)
 
 	// membuka db transaction
@@ -52,14 +60,14 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request request.
 	defer helper.CommitOrRollback(tx) // recovery func for rollback or commit db transaction
 
 	// checking id is exist
-	category, err := service.repository.FindById(ctx, tx, request.Id)
+	category, err := service.Repository.FindById(ctx, tx, request.Id)
 	helper.PanicError(err)
 
 	// set field update
 	category.Name = request.Name
 
 	// do action with db in repository
-	category = service.repository.Update(ctx, tx, category)
+	category = service.Repository.Update(ctx, tx, category)
 
 	// return with mapping data domain category to response category
 	return helper.ToCategoryResponse(category)
@@ -72,11 +80,11 @@ func (service *CategoryServiceImpl) Delete(ctx context.Context, categoryId int) 
 	defer helper.CommitOrRollback(tx) // recovery func for rollback or commit db transaction
 
 	// checking id is exist
-	_, err = service.repository.FindById(ctx, tx, categoryId)
+	_, err = service.Repository.FindById(ctx, tx, categoryId)
 	helper.PanicError(err)
 
 	// do action with db in repository
-	service.repository.Delete(ctx, tx, categoryId)
+	service.Repository.Delete(ctx, tx, categoryId)
 }
 
 func (service *CategoryServiceImpl) FindById(ctx context.Context, categoryId int) response.CategoryResponse {
@@ -86,7 +94,7 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, categoryId int
 	defer helper.CommitOrRollback(tx) // recovery func for rollback or commit db transaction
 
 	// checking id is exist
-	category, err := service.repository.FindById(ctx, tx, categoryId)
+	category, err := service.Repository.FindById(ctx, tx, categoryId)
 	helper.PanicError(err)
 
 	// return with mapping data domain category to response category
@@ -100,7 +108,7 @@ func (service *CategoryServiceImpl) FindAll(ctx context.Context) []response.Cate
 	defer helper.CommitOrRollback(tx) // recovery func for rollback or commit db transaction
 
 	// do action with db in repository
-	categories := service.repository.FindAll(ctx, tx)
+	categories := service.Repository.FindAll(ctx, tx)
 	helper.PanicError(err)
 
 	// return with mapping data domain category to response category

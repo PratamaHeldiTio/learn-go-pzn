@@ -13,6 +13,12 @@ type CategoryControllerImpl struct {
 	CategoryService service.CategoryService
 }
 
+func NewCategoryController(categoryService service.CategoryService) CategoryController {
+	return &CategoryControllerImpl{
+		CategoryService: categoryService,
+	}
+}
+
 func (controller *CategoryControllerImpl) Created(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	// make var for temp request
 	var categoryCreatedRequest requestModel.CategoryCreatedRequest
@@ -74,6 +80,7 @@ func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, r
 	// get id from params and convert string to int
 	categoryId := params.ByName("categoryId")
 	id, err := strconv.Atoi(categoryId)
+
 	helper.PanicError(err)
 
 	// do controller with passing context and request

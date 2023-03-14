@@ -6,7 +6,7 @@ import (
 	"go-restapi/model/response"
 )
 
-// interface contrac service
+// CategoryService interface contrac service
 type CategoryService interface {
 	Created(ctx context.Context, request request.CategoryCreatedRequest) response.CategoryResponse
 	Update(ctx context.Context, request request.CategoryUpdateRequest) response.CategoryResponse
