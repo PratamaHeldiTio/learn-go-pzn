@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/go-playground/validator/v10"
+	"go-restapi/exception"
 	"go-restapi/helper"
 	"go-restapi/model/domain"
 	"go-restapi/model/request"
@@ -61,8 +62,10 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request request.
 
 	// checking id is exist
 	category, err := service.Repository.FindById(ctx, tx, request.Id)
-	helper.PanicError(err)
-
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+	
 	// set field update
 	category.Name = request.Name
 
@@ -81,7 +84,9 @@ func (service *CategoryServiceImpl) Delete(ctx context.Context, categoryId int) 
 
 	// checking id is exist
 	_, err = service.Repository.FindById(ctx, tx, categoryId)
-	helper.PanicError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	// do action with db in repository
 	service.Repository.Delete(ctx, tx, categoryId)
@@ -95,7 +100,9 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, categoryId int
 
 	// checking id is exist
 	category, err := service.Repository.FindById(ctx, tx, categoryId)
-	helper.PanicError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	// return with mapping data domain category to response category
 	return helper.ToCategoryResponse(category)

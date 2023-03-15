@@ -1,20 +1,23 @@
 package helper
 
-import "go-restapi/model/response"
+import (
+	"go-restapi/model/response"
+)
 
-func ResponseSuccess(data interface{}) (APIResponse response.APIResponse) {
-	if data != nil {
-		APIResponse = response.APIResponse{
-			Code:   200,
-			Status: "Success",
-			Data:   data,
-		}
-	} else {
-		APIResponse = response.APIResponse{
-			Code:   200,
-			Status: "Success",
-		}
+func ResponseSuccess(data interface{}) response.APIResponseSucess {
+	APIResponse := response.APIResponseSucess{
+		Code:   200,
+		Status: "Success",
+		Data:   data,
 	}
+	return APIResponse
+}
 
+func ResponseError(code int, status string, err interface{}) (APIResponse response.APIResponseError) {
+	APIResponse = response.APIResponseError{
+		Code:    code,
+		Status:  status,
+		Message: err,
+	}
 	return
 }
