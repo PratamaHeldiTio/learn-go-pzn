@@ -8,6 +8,7 @@ import (
 	"go-restapi/controller"
 	"go-restapi/exception"
 	"go-restapi/helper"
+	"go-restapi/middlerware"
 	"go-restapi/repository"
 	"go-restapi/service"
 	"net/http"
@@ -40,7 +41,7 @@ func main() {
 	// define server
 	server := http.Server{
 		Addr:    "localhost:3000",
-		Handler: router,
+		Handler: middlerware.NewAuthMiddleware(router),
 	}
 
 	//run server
